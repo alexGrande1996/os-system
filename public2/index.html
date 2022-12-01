@@ -1,0 +1,306 @@
+<!DOCTYPE html><html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Luxometro</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.ef46db3751d8e999.css">
+    <style>
+      
+      p{
+        display:inline;
+      }
+      * {
+        box-sizing: border-box;
+      }
+
+      div{
+        display:flex;
+      }
+
+      button{
+        height: 50px;
+        width: 50px;
+      }
+      
+      #myInput {
+        background-image: url('/css/searchicon.png');
+        background-position: 10px 12px;
+        background-repeat: no-repeat;
+        width: 100%;
+        font-size: 16px;
+        padding: 12px 20px 12px 40px;
+        border: 1px solid #ddd;
+        margin-bottom: 12px;
+      }
+      
+      #myUL {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      #myUL li a {
+        border: 1px solid #ddd;
+        margin-top: -1px; /* Prevent double borders */
+        background-color: #f6f6f6;
+        padding: 12px;
+        text-decoration: none;
+        font-size: 18px;
+        color: black;
+        display: block
+      }
+      
+      #myUL li a:hover:not(.header) {
+        background-color: #eee;
+      }
+
+
+      </style>
+
+
+
+    <script src="http://18.205.247.201/socket.io/socket.io.js"></script>
+  </head>
+  <body class="bg-dark">
+    
+<h2>My Phonebook</h2>
+
+<!-- <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name"> -->
+
+<ul id="myUL">
+  <li><a href="#">VENTILADOR: <p id="ventilador">Estado actual del ventilador: 0</p>
+    <div>
+      <button onclick="encendidoVentilador()">ON</button>
+      <button onclick="apagadoVentilador()">OFF</button>
+    </div>
+  </a></li>
+
+  <li><a href="#">MOVMIENTO: <p id="movimiento">Señales de movimiento: 0</p>
+    <div>
+      <button>ON</button>
+      <button>OFF</button>
+    </div>
+  </a></li>
+
+  <li><a href="#">CERRADURA: <p id="cerradura">Estado actual de la cerradura: 0</p>
+    <div>
+      <button onclick="abrirCerradura()">ON</button>
+      <button onclick="cerrarCerradura()">OFF</button>
+    </div>
+  </a></li>
+  <li><a href="#">CORRIENTE: <p id="corriente">Intencidad de la corriente: 0</p>
+    <div>
+      <button>ON</button>
+      <button>OFF</button>
+    </div>
+  </a></li>
+
+  <li><a href="#">TEMPERATURA: <p id="temperatura">Estado actual de la temperatura: 0</p>
+    <div>
+      <button>ON</button>
+      <button>OFF</button>
+    </div>
+  </a></li>
+
+  <li><a href="#">HUMEDAD: <p id="humedad">Estado actual de la humedad: 0</p>
+    <div>
+      <button>ON</button>
+      <button>OFF</button>
+    </div>
+  </a></li>
+
+  <li><a href="#">ALTITUD: <p id="altitud">Altitud actual: 0</p>
+    <div>
+      <button>ON</button>
+      <button>OFF</button>
+    </div>
+  </a></li>
+
+  <li><a href="#">ILUMINACION: <p id="iluminacion">Estado actual de la iluminacion: 0</p>
+    <div>
+      <button onclick="encendidoIluminacion()">ON</button>
+      <button onclick="apagadoIluminacion()">OFF</button>
+    </div>
+  </a></li>
+  
+
+</ul>
+
+
+
+    <!-- 
+      <div style="width: 1200px; height: 1500px;">
+        <app-root></app-root>
+      </div>
+    
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+      <script src="runtime.12be61663afa7bff.js" type="module"></script><script src="polyfills.668b2324c8aa39ca.js" type="module"></script><script src="main.ff1f31ac84512736.js" type="module"></script>
+    -->
+
+
+
+
+        
+
+    <script>
+      let contador4 = 0;
+
+      // const id = setInterval(()=>{
+      //   contador4++;
+
+      //   if(contador4 == 2){
+      //     clearInterval(id);
+
+      //   }
+      //   console.log("Hola"+contador4);
+      // },1000);
+
+
+      // const cantidadImagenes = listaImagenes.length;
+      // let contador = 0;
+      // const imagen = document.querySelector('.imagen');
+
+     
+
+      const socket = io('http://18.205.247.201',{ forceNew: true });
+      socket.on("connect",()=>{
+          console.log('Cliente conectado al servidor id;',socket.id);
+      });
+
+      
+      //Recoleccion de datos de los dispositivos
+      
+      // //Ventilador
+      // socket.emit('VENTILADOR:ESTADO',{valor: ventilador});
+
+      
+      // const enviarMensaje = (nombre="",mensaje="",id="") =>{
+      //   socket.emit('CHAT:MENSAJE:ESTADO',{persona:nombre,mensaje,id});
+      // }
+
+      // socket.on('CHAT:MENSAJE:MONITOR',(data)=>{
+      //   console.log(data);
+      // });
+
+
+
+      //Escuchadores de informacion
+      socket.on('VENTILADOR:MONITOR',(data)=>{
+        const datos = data;
+
+        // console.log('Estado actual del ventilador: '+datos.valor);
+
+        const ventilador = document.querySelector('#ventilador');
+        ventilador.innerHTML = 'Estado actual del ventilador: '+ datos.valor;
+        
+
+      });
+
+      
+      socket.on('MOVIMIENTO:MONITOR',(data)=>{
+        const datos = data;
+
+        // console.log('Señales de movimiento: '+datos.valor);
+        
+        const movimiento = document.querySelector('#movimiento');
+        movimiento.innerHTML = 'Señales de movimiento: '+datos.valor;
+      });
+
+      socket.on('CERRADURA:MONITOR',(data)=>{
+        const datos = data;
+
+        // console.log('Estado actual de la cerradura: '+datos.valor);
+
+
+        const cerradura = document.querySelector('#cerradura');
+        cerradura.innerHTML = 'Estado actual de la cerradura: '+datos.valor;
+      });
+
+      socket.on('CORRIENTE:MONITOR',(data)=>{
+        const datos = data;
+
+        // console.log('Intencidad de la corriente: '+datos.valor);
+
+        const corriente = document.querySelector('#corriente');
+        corriente.innerHTML = 'Intencidad de la corriente: '+datos.valor;
+      });
+
+      socket.on('TEMPERATURA:MONITOR',(data)=>{
+        const datos = data;
+
+        // console.log('Estado actual de la temperatura: '+datos.valor);
+
+        const temperatura= document.querySelector('#temperatura');
+        temperatura.innerHTML = 'Estado actual de la temperatura: '+datos.valor;
+      });
+
+      socket.on('HUMEDAD:MONITOR',(data)=>{
+        const datos = data;
+
+        // console.log('Estado actual de la humedad: '+datos.valor);
+
+        const humedad= document.querySelector('#humedad');
+        humedad.innerHTML = 'Estado actual de la humedad: '+datos.valor;
+      });
+      
+      socket.on('ALTITUD:MONITOR',(data)=>{
+        const datos = data;
+
+        // console.log('Altitud actual: '+datos.valor);
+
+        const altitud= document.querySelector('#altitud');
+        altitud.innerHTML = 'Altitud actual: '+datos.valor;
+      });
+
+      socket.on('ILUMINACION:MONITOR',(data)=>{
+        const datos = data;
+
+        // console.log('Estado actual de la iluminacion: '+datos.valor);
+
+        const iluminacion= document.querySelector('#iluminacion');
+        iluminacion.innerHTML = 'Estado actual de la iluminacion: '+datos.valor;
+      });
+
+
+      const encendidoVentilador = ()=>{
+        socket.emit('VENTILADOR:ENCENDIDO');
+      }
+      
+      const apagadoVentilador = ()=>{
+        socket.emit('VENTILADOR:APAGADO');
+      }
+      
+
+      const abrirCerradura = ()=>{
+        socket.emit('CERRADURA:ABRIR');
+      }
+      
+      const cerrarCerradura = ()=>{
+        socket.emit('CERRADURA:CERRAR');
+      }
+
+      const encendidoIluminacion = ()=>{
+        socket.emit('ILUMINACION:ENCENDIDO');
+      }
+
+      const apagadoIluminacion = ()=>{
+        socket.emit('ILUMINACION:APAGADO');
+      }
+
+
+
+
+    
+
+    </script>
+
+
+
+
+
+  </body>
+</html>
